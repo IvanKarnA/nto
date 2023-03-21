@@ -12,8 +12,11 @@
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
-
+uint16_t clear;
 Adafruit_APDS9960 apds9960;
+#define ColorDistanceSensorAddr 0x07
+uint16_t ColorDistanceData[4];
+
 /*
   I2C порт 0x07 - выводы GP16 (SDA), GP17 (SCL)
   I2C порт 0x06 - выводы GP4 (SDA), GP13 (SCL)
@@ -21,17 +24,17 @@ Adafruit_APDS9960 apds9960;
   I2C порт 0x04 - выводы GP5 (SDA), GP23 (SCL)
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 */
-void setup() {
-  
-
-}
-
-void loop() {
-  
-
-}
-
-
+#line 25 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+bool setBusChannel(uint8_t i2c_channel);
+#line 41 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+bool ColorDistanceSensorBegin();
+#line 52 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void ColorDistanceGetData();
+#line 63 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void setup();
+#line 68 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void loop();
+#line 25 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool setBusChannel(uint8_t i2c_channel)
 {
   if (i2c_channel >= MAX_CHANNEL)
@@ -47,43 +50,38 @@ bool setBusChannel(uint8_t i2c_channel)
     
   }
 }
-namespace ColorDistanceSensor
-{
-  SemaphoreHandle_t avalibleToRead;
-  SemaphoreHandle_t avalibleToWrite;
-  bool begin(){
-    avalibleToRead=xSemaphoreCreateBinary();
-    avalibleToWrite=xSemaphoreCreateBinary();
-    xSemaphoreGive(avalibleToWrite);
-    return apds9960.begin();
-    apds9960.enableColor(true);
-    apds9960.enableProximity(true);
-  }
-  int Data[4];
-  void DataScaner(void* pvParameters){
-    if (!begin())
+
+bool ColorDistanceSensorBegin(){
+  if (apds9960.begin())
     {
-      std::cout<< "ColorDistanceSensor: init error";
-      while (1)
-      {
-        /* code */
-      }
-      
+      apds9960.enableColor(true);
+      apds9960.enableProximity(true);
+      return true;
     }
-    else
-    {
-      for (;;)
-      {
-        if (xSemaphoreTake(avalibleToWrite)==pdPASS)
-        {
-          /* code */
-        }
-        
-      }
-      
+    else{
+      return false;
     }
-    
-    
+}
+void ColorDistanceGetData(){
+  setBusChannel(ColorDistanceSensorAddr);
+  while (!apds9960.colorDataReady())
+  {
+    delay(5);
   }
-} 
+  
+  apds9960.getColorData(&ColorDistanceData[0], &ColorDistanceData[1], &ColorDistanceData[2], &clear);
+  ColorDistanceData[3] =apds9960.readProximity();
+}
+
+void setup(){
+  ColorDistanceSensorBegin();
+  
+  
+}
+void loop(){
+  ColorDistanceGetData();
+  std::cout<<ColorDistanceData[0]<<" "<<ColorDistanceData[2]<<" "<<ColorDistanceData[2]<<" "<<ColorDistanceData[3]<<"\n";
+  delay(100);
+}
+
 
