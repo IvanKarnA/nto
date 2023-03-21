@@ -10,17 +10,13 @@
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
-
+SemaphoreHandle_t availableMultiplexor;
 Adafruit_APDS9960 apds9960;
-/*
-  I2C порт 0x07 - выводы GP16 (SDA), GP17 (SCL)
-  I2C порт 0x06 - выводы GP4 (SDA), GP13 (SCL)
-  I2C порт 0x05 - выводы GP14 (SDA), GP15 (SCL)
-  I2C порт 0x04 - выводы GP5 (SDA), GP23 (SCL)
-  I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
-*/
+#define ColorDistanceSensorAddr GP16
+
+
 void setup() {
-  
+  availableMultiplexor = xSemaphoreCreateBinary();
 
 }
 
@@ -29,7 +25,13 @@ void loop() {
 
 }
 
-
+/*
+  I2C порт 0x07 - выводы GP16 (SDA), GP17 (SCL)
+  I2C порт 0x06 - выводы GP4 (SDA), GP13 (SCL)
+  I2C порт 0x05 - выводы GP14 (SDA), GP15 (SCL)
+  I2C порт 0x04 - выводы GP5 (SDA), GP23 (SCL)
+  I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
+*/
 bool setBusChannel(uint8_t i2c_channel)
 {
   if (i2c_channel >= MAX_CHANNEL)
@@ -47,12 +49,12 @@ bool setBusChannel(uint8_t i2c_channel)
 }
 namespace ColorDistanceSensor
 {
-  SemaphoreHandle_t avalibleToRead;
-  SemaphoreHandle_t avalibleToWrite;
+  SemaphoreHandle_t availableToRead;
+  SemaphoreHandle_t availableToWrite;
   bool begin(){
-    avalibleToRead=xSemaphoreCreateBinary();
-    avalibleToWrite=xSemaphoreCreateBinary();
-    xSemaphoreGive(avalibleToWrite);
+    availableToRead=xSemaphoreCreateBinary();
+    availableToWrite=xSemaphoreCreateBinary();
+    xSemaphoreGive(availableToWrite);
     return apds9960.begin();
     apds9960.enableColor(true);
     apds9960.enableProximity(true);
@@ -77,12 +79,22 @@ namespace ColorDistanceSensor
         while (!apds9960.colorDataReady()) {
         vTaskDelay(10);
       }
-        if (xSemaphoreTake(avalibleToWrite,portMAX_DELAY)==pdPASS)
+        if (xSemaphoreTake(availableToWrite,portMAX_DELAY)==pdPASS)
         {
-          uint16_t clear;
-           apds9960.getColorData(&Data[0], &Data[1], &Data[2], &clear);
-          Data[3] =apds9960.readProximity();
-          xSemaphoreGive(avalibleToRead);
+          if (xSemaphoreTake(availableMultiplexor,portMAX_DELAY)==pdPASS)
+          {
+            setBusChannel(ColorDistanceSensorAddr);
+            uint16_t clear;
+            apds9960.getColorData(&Data[0], &Data[1], &Data[2], &clear);
+            Data[3] =apds9960.readProximity();
+            xSemaphoreGive(availableToRead);
+            uint16_t clear;
+            apds9960.getColorData(&Data[0], &Data[1], &Data[2], &clear);
+            Data[3] =apds9960.readProximity();
+            xSemaphoreGive(availableToRead);
+            xSemaphoreGive(availableMultiplexor);
+          }
+          
         }
         
       }
