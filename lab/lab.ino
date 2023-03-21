@@ -1,4 +1,6 @@
 #include <Wire.h>
+#include <iostream>
+#include "Adafruit_APDS9960.h"
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -9,6 +11,7 @@
 #define GP5 0x04
 #define GP18 0x03
 
+Adafruit_APDS9960 apds9960;
 /*
   I2C порт 0x07 - выводы GP16 (SDA), GP17 (SCL)
   I2C порт 0x06 - выводы GP4 (SDA), GP13 (SCL)
@@ -39,5 +42,53 @@ bool setBusChannel(uint8_t i2c_channel)
     Wire.write(i2c_channel | EN_MASK);
     Wire.endTransmission();
     return true;
+    
   }
 }
+namespace ColorDistanceSensor
+{
+  SemaphoreHandle_t avalibleToRead;
+  SemaphoreHandle_t avalibleToWrite;
+  bool begin(){
+    avalibleToRead=xSemaphoreCreateBinary();
+    avalibleToWrite=xSemaphoreCreateBinary();
+    xSemaphoreGive(avalibleToWrite);
+    return apds9960.begin();
+    apds9960.enableColor(true);
+    apds9960.enableProximity(true);
+  }
+  uint16_t Data[4];
+  void DataScaner(void* pvParameters){
+    if (!begin())
+    {
+      std::cout<< "ColorDistanceSensor: init error";
+      while (1)
+      {
+        /* code */
+      }
+      
+    }
+    else
+    {
+      apds9960.enableColor(true);
+      apds9960.enableProximity(true);
+      for (;;)
+      {
+        while (!apds9960.colorDataReady()) {
+        vTaskDelay(10);
+      }
+        if (xSemaphoreTake(avalibleToWrite,portMAX_DELAY)==pdPASS)
+        {
+          uint16_t clear;
+           apds9960.getColorData(&Data[0], &Data[1], &Data[2], &clear);
+          Data[3] =apds9960.readProximity();
+          xSemaphoreGive(avalibleToRead);
+        }
+        
+      }
+      
+    }
+    
+    
+  }
+} 
