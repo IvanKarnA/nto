@@ -21,6 +21,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "SparkFun_SGP30_Arduino_Library.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\SparkFun_SGP30_Arduino_Library-1.0.5\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "mcp3021.h",
     "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\MCP3021"
   },
@@ -36,6 +41,11 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_APDS9960-master\\Adafruit_APDS9960.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\SparkFun_SGP30_Arduino_Library-1.0.5\\src\\SparkFun_SGP30_Arduino_Library.cpp",
     "Include": "",
     "Includepath": null
   },

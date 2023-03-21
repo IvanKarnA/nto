@@ -3,6 +3,7 @@
 #include <Wire.h>
 #include <iostream>
 #include "Adafruit_APDS9960.h"
+#include "SparkFun_SGP30_Arduino_Library.h"
 #include "mcp3021.h"
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
@@ -31,24 +32,26 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 */
 
-#line 32 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 33 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup();
-#line 35 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 37 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void loop();
-#line 44 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 45 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool setBusChannel(uint8_t i2c_channel);
 #line 60 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float GetWaterLVL();
+#line 63 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool ColorDistanceSensorBegin();
-#line 71 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 74 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void ColorDistanceGetData();
-#line 32 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 33 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup(){
-  ColorDistanceSensorBegin();
+  Wire.begin();
+  mcp3021.begin(WaterID);
 }
 void loop(){
-  ColorDistanceGetData();
-  std::cout<<ColorDistanceData[0]<<" "<<ColorDistanceData[2]<<" "<<ColorDistanceData[2]<<" "<<ColorDistanceData[3]<<"\n";
-  delay(100);
+  
+  
   
 }
 
@@ -69,7 +72,9 @@ bool setBusChannel(uint8_t i2c_channel)
     
   }
 }
-
+float GetWaterLVL(){
+  return map(mcp3021.readADC(), air_value, water_value, moisture_0, moisture_100);
+}
 bool ColorDistanceSensorBegin(){
   if (apds9960.begin())
     {

@@ -3,6 +3,7 @@
 # 3 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 4 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 5 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 6 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 #define I2C_HUB_ADDR 0x70
 #define EN_MASK 0x08
 #define DEF_CHANNEL 0x00
@@ -35,14 +36,14 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 32 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 33 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup(){
-  ColorDistanceSensorBegin();
+  Wire.begin();
+  mcp3021.begin(5);
 }
 void loop(){
-  ColorDistanceGetData();
-  std::cout<<ColorDistanceData[0]<<" "<<ColorDistanceData[2]<<" "<<ColorDistanceData[2]<<" "<<ColorDistanceData[3]<<"\n";
-  delay(100);
+
+
 
 }
 
@@ -63,7 +64,9 @@ bool setBusChannel(uint8_t i2c_channel)
 
   }
 }
-
+float GetWaterLVL(){
+  return map(mcp3021.readADC(), air_value, water_value, moisture_0, moisture_100);
+}
 bool ColorDistanceSensorBegin(){
   if (apds9960.begin())
     {
