@@ -21,6 +21,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "mcp3021.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\MCP3021"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -31,6 +36,16 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_APDS9960-master\\Adafruit_APDS9960.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\MCP3021\\CtSens.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\MCP3021\\mcp3021.cpp",
     "Include": "",
     "Includepath": null
   }
