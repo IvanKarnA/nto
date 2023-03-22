@@ -8,7 +8,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <MPU6050.h>
-
+#include <VL53L0X.h>
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -18,6 +18,7 @@
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
+VL53L0X lox;
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
@@ -25,6 +26,7 @@ SGP30 CO30;
 Adafruit_APDS9960 apds9960;
 BH1750FVI LightSensor_1;
 Adafruit_BME280 bme280;
+MPU6050 mpu;
 #define ColorDistanceSensorAddr 0x07
 #define WaterID 5
 uint16_t ColorDistanceData[4];
@@ -50,6 +52,11 @@ void loop(){
 void StartAll(){
   Wire.begin();
   lcd.begin();
+  mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G);
+  mpu.setThreshold(3);
+  lox.init();
+  lox.setTimeout(500);
+  lox.setMeasurementTimingBudget(200000);
   mcp3021.begin(WaterID);
  CO30.begin();
 CO30.initAirQuality();
@@ -125,4 +132,9 @@ void ColorDistanceGetData(){
   apds9960.getColorData(&ColorDistanceData[0], &ColorDistanceData[1], &ColorDistanceData[2], &clear);
   ColorDistanceData[3] =apds9960.readProximity();
 }
-
+float getDistanceLaser(){
+  return lox.readRangeSingleMillimeters();
+}
+Vector getGyroscope(){
+  return mpu.readNormalizeGyro();
+}

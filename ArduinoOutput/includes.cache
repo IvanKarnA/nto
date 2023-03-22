@@ -16,6 +16,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "I2C_graphical_LCD_display.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "Adafruit_APDS9960.h",
     "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_APDS9960-master"
   },
@@ -51,8 +56,8 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
-    "Include": "I2C_graphical_LCD_display.h",
-    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified"
+    "Include": "VL53L0X.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\vl53l0x-arduino"
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
@@ -61,6 +66,16 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\Wire\\src\\Wire.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified\\I2C_graphical_LCD_display.cpp",
+    "Include": "SPI.h",
+    "Includepath": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src"
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified\\I2C_graphical_LCD_display.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -96,11 +111,6 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BME280_Library\\Adafruit_BME280.cpp",
-    "Include": "SPI.h",
-    "Includepath": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src"
-  },
-  {
-    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BME280_Library\\Adafruit_BME280.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -110,7 +120,7 @@
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified\\I2C_graphical_LCD_display.cpp",
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\vl53l0x-arduino\\VL53L0X.cpp",
     "Include": "",
     "Includepath": null
   },
