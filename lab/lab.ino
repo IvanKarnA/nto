@@ -7,6 +7,13 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <MPU6050.h>
+#include "WiFi.h"
+#include <PubSubClient.h>
+#include <map>
+#include <string.h>
+typedef void (*callbackScript)(String);
+std::map<String,callbackScript> topics;
+
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -37,21 +44,66 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 */
 
+const char* ssid = "****";
+const char* password =  "****";
+const char* mqtt_server = "lapsoft.mooo.com";
+const char* mqtt_login = "esp";
+const char* mqtt_password = "L9{HTRfq7#N!";
+const int mqtt_port = 10101;
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+/* MQTT */
+//Функция для оформления подписки
+void subscribe(const char* name, callbackScript script){
+  topics.insert(std::make_pair(String(name),script));
+  client.subscribe(name);
+}
+
+//Вызывается при получении сообщения с топиков
+void MQTTcallback(char* topic, byte* payload, unsigned int length) 
+{
+  String message;
+  for (int i = 0; i < length; i++) 
+  {
+    message = message + (char)payload[i];
+  }
+  
+  if ((topics.find(String(topic)))==topics.end())
+  {
+    Serial.println("Error");
+  }
+  else{
+    ((*topics.find(String(topic))).second)(message);
+  }
+}
+
+void TopicOut(String s){
+  Serial.println(s);
+}
+
+
 void setup(){
   StartAll();
 }
 void loop(){
+  client.loop();
   std::cout<< getTemperature()<<"  "<< getHumidity()<<"  "<< getPressure()<<"\n";
   delay(100);
 }
 void StartAll(){
   Wire.begin();
   mcp3021.begin(WaterID);
- CO30.begin();
-CO30.initAirQuality();
-LightSensor_1.begin();
-bme280.begin();
-LightSensor_1.setMode(Continuously_High_Resolution_Mode);
+  CO30.begin();
+  CO30.initAirQuality();
+  LightSensor_1.begin();
+  bme280.begin();
+  LightSensor_1.setMode(Continuously_High_Resolution_Mode);
+  Serial.begin(115200);
+  WifiConnect();
+  MQTTSetup();
+  // subscribe("esp/test",TopicOut);
 }
 
 float getTemperature(){
@@ -118,3 +170,30 @@ void ColorDistanceGetData(){
   ColorDistanceData[3] =apds9960.readProximity();
 }
 
+/* MQTT */
+void WifiConnect(){
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println(WiFi.SSID());
+}
+void MQTTSetup(){
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(MQTTcallback);
+  while (!client.connected()) 
+  {
+    Serial.println("Connecting to MQTT...");
+    if (client.connect("esp", mqtt_login,mqtt_password))
+    {
+      Serial.println("connected");
+    }
+    else
+    {
+      Serial.print("failed with state ");
+      Serial.println(client.state());
+    }
+  }
+}
