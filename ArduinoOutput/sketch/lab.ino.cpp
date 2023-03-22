@@ -5,6 +5,8 @@
 #include "Adafruit_APDS9960.h"
 #include "SparkFun_SGP30_Arduino_Library.h"
 #include "mcp3021.h"
+#include <BH1750FVI.h>
+
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -16,7 +18,9 @@
 #define GP18 0x03
 uint16_t clear;
 MCP3021 mcp3021;
+SGP30 CO30;
 Adafruit_APDS9960 apds9960;
+BH1750FVI LightSensor_1;
 #define ColorDistanceSensorAddr 0x07
 #define WaterID 5
 uint16_t ColorDistanceData[4];
@@ -32,30 +36,46 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 */
 
-#line 33 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void setup();
 #line 37 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void loop();
+void setup();
 #line 45 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void loop();
+#line 50 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t gerCO2();
+#line 55 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t gerTVOC();
+#line 61 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool setBusChannel(uint8_t i2c_channel);
-#line 60 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float GetWaterLVL();
-#line 63 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 76 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+int GetWaterLVL();
+#line 81 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool ColorDistanceSensorBegin();
-#line 74 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 92 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void ColorDistanceGetData();
-#line 33 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 37 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup(){
   Wire.begin();
   mcp3021.begin(WaterID);
+ CO30.begin();
+CO30.initAirQuality();
+LightSensor_1.begin();
+LightSensor_1.setMode(Continuously_High_Resolution_Mode);
 }
 void loop(){
-  
-  
-  
+  std::cout<<LightSensor_1.getAmbientLight()<<'\n';
+  delay(100);
 }
 
-
+uint16_t gerCO2(){
+  Wire.begin();
+  CO30.measureAirQuality();
+  return CO30.CO2;
+}
+uint16_t gerTVOC(){
+  Wire.begin();
+  CO30.measureAirQuality();
+  return CO30.CO2;
+}
 
 bool setBusChannel(uint8_t i2c_channel)
 {
@@ -72,8 +92,10 @@ bool setBusChannel(uint8_t i2c_channel)
     
   }
 }
-float GetWaterLVL(){
-  return map(mcp3021.readADC(), air_value, water_value, moisture_0, moisture_100);
+int GetWaterLVL(){
+  int x=map(mcp3021.readADC(), air_value, water_value, moisture_0, moisture_100);
+  std::cout<<"Water lvl: "<<x<<"\n";
+  return x;
 }
 bool ColorDistanceSensorBegin(){
   if (apds9960.begin())

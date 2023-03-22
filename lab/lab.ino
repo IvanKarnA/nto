@@ -3,6 +3,8 @@
 #include "Adafruit_APDS9960.h"
 #include "SparkFun_SGP30_Arduino_Library.h"
 #include "mcp3021.h"
+#include <BH1750FVI.h>
+
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -16,6 +18,7 @@ uint16_t clear;
 MCP3021 mcp3021;
 SGP30 CO30;
 Adafruit_APDS9960 apds9960;
+BH1750FVI LightSensor_1;
 #define ColorDistanceSensorAddr 0x07
 #define WaterID 5
 uint16_t ColorDistanceData[4];
@@ -34,20 +37,28 @@ const float moisture_100 = 100.0;
 void setup(){
   Wire.begin();
   mcp3021.begin(WaterID);
-  CO30.begin();
-  CO30.initAirQuality();
+ CO30.begin();
+CO30.initAirQuality();
+LightSensor_1.begin();
+LightSensor_1.setMode(Continuously_High_Resolution_Mode);
 }
 void loop(){
   
+  delay(100);
 }
 
-
-uint16_t* getGasData(){
+uint16_t gerCO2(){
+  Wire.begin();
   CO30.measureAirQuality();
-  uint16_t ans[2];
-  ans[0]=CO30.CO2;
-  ans[1]=CO30.TVOC;
-  return ans;
+  return CO30.CO2;
+}
+uint16_t gerTVOC(){
+  Wire.begin();
+  CO30.measureAirQuality();
+  return CO30.CO2;
+}
+uint16_t getLux(){
+  return LightSensor_1.getAmbientLight();
 }
 bool setBusChannel(uint8_t i2c_channel)
 {
@@ -64,9 +75,9 @@ bool setBusChannel(uint8_t i2c_channel)
     
   }
 }
-float GetWaterLVL(){
-  float x=map(mcp3021.readADC(), air_value, water_value, moisture_0, moisture_100);
-  std::cout<<"Water lvl: "<<x;
+int GetWaterLVL(){
+  int x=map(mcp3021.readADC(), air_value, water_value, moisture_0, moisture_100);
+  std::cout<<"Water lvl: "<<x<<"\n";
   return x;
 }
 bool ColorDistanceSensorBegin(){

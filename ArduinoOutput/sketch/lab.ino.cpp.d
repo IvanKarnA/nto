@@ -136,4 +136,5 @@ c:\Users\IVAN\Desktop\nto\ArduinoOutput\sketch\lab.ino.cpp.o: \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6/tools/sdk/include/freertos/freertos/queue.h \
  C:\Users\IVAN\Documents\Arduino\libraries\Adafruit_APDS9960-master/Adafruit_APDS9960.h \
  C:\Users\IVAN\Documents\Arduino\libraries\SparkFun_SGP30_Arduino_Library-1.0.5\src/SparkFun_SGP30_Arduino_Library.h \
- C:\Users\IVAN\Documents\Arduino\libraries\MCP3021/mcp3021.h
+ C:\Users\IVAN\Documents\Arduino\libraries\MCP3021/mcp3021.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\BH1750FVI/BH1750FVI.h

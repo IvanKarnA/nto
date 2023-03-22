@@ -31,6 +31,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "BH1750FVI.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\BH1750FVI"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -56,6 +61,11 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\MCP3021\\mcp3021.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\BH1750FVI\\BH1750FVI.cpp",
     "Include": "",
     "Includepath": null
   }
