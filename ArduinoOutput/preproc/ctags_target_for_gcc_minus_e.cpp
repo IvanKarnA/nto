@@ -14,8 +14,13 @@
 # 14 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 15 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 16 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 17 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 
-
+#define ToquePort 26
+#define DoorPort 15
+#define WindowPort 23
+#define DoorCheckPort 18
+#define WindowCheckPort 19
 #define I2C_HUB_ADDR 0x70
 #define EN_MASK 0x08
 #define DEF_CHANNEL 0x00
@@ -43,6 +48,9 @@ const float air_value = 561.0;
 const float water_value = 293.0;
 const float moisture_0 = 0.0;
 const float moisture_100 = 100.0;
+volatile double waterFlow=0;
+volatile bool door=0;
+volatile bool window=0;
 /*
 
   I2C порт 0x07 - выводы GP16 (SDA), GP17 (SCL)
@@ -56,7 +64,7 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 53 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 61 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 const char* ssid = "****";
 const char* password = "****";
 const char* mqtt_server = "lapsoft.mooo.com";
@@ -116,27 +124,39 @@ void StartAll(){
   lox.init();
   lox.setTimeout(500);
   lox.setMeasurementTimingBudget(200000);
+  analogReadResolution(12);
   mcp3021.begin(5);
   CO30.begin();
   CO30.initAirQuality();
   LightSensor_1.begin();
   bme280.begin();
   LightSensor_1.setMode(0x10);
+  attachInterrupt(5, waterFlowISR, 0x01);
   Serial.begin(115200);
   WifiConnect();
   xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,
-# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
                                                __null
-# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
                                                    ,1,
-# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
                                                       __null
-# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
                                                           );
 }
 
 
 /* Sensors */
+void openDoor(){
+  if (!door)
+  {
+
+  }
+
+}
+void waterFlowISR(){
+  waterFlow += 1.0 / 5880.0;
+}
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
 }
@@ -209,6 +229,16 @@ float getDistanceLaser(){
 Vector getGyroscope(){
   return mpu.readNormalizeGyro();
 }
+float getToque(){
+  float sensorValue=0;
+  for (int i = 0; i < 50; i++)
+  {
+    sensorValue += analogRead(26);
+    delay(2);
+  }
+  return (sensorValue/50*3.3/4096-2.5)/ 0.185;
+}
+
 
 /* MQTT */
 void MQTTClientTask(void* pvParameters){

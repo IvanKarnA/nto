@@ -13,8 +13,13 @@
 #include <PubSubClient.h>
 #include <map>
 #include <string.h>
+#include <ESP32Servo.h>
 #include <VL53L0X.h>
-
+#define ToquePort 26
+#define DoorPort 15
+#define WindowPort 23
+#define DoorCheckPort 18
+#define WindowCheckPort 19
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -26,6 +31,8 @@
 #define GP18 0x03
 typedef void (*callbackScript)(String);
 std::map<String,callbackScript> topics;
+Servo doorServo;
+Servo windowServo;
 VL53L0X lox;
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
@@ -42,6 +49,9 @@ const float air_value = 561.0;
 const float water_value = 293.0;
 const float moisture_0 = 0.0;
 const float moisture_100 = 100.0;
+volatile double waterFlow=0; 
+volatile bool door=0;
+volatile bool window=0;
 /*
   I2C порт 0x07 - выводы GP16 (SDA), GP17 (SCL)
   I2C порт 0x06 - выводы GP4 (SDA), GP13 (SCL)
@@ -102,6 +112,8 @@ void loop(){
   delay(100);
 }
 void StartAll(){
+  doorServo.attach(DoorPort);
+  windowServo.attach(WindowPort);
   Wire.begin();
   lcd.begin();
   mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G);
@@ -109,12 +121,19 @@ void StartAll(){
   lox.init();
   lox.setTimeout(500);
   lox.setMeasurementTimingBudget(200000);
+  analogReadResolution(12);
   mcp3021.begin(WaterID);
   CO30.begin();
   CO30.initAirQuality();
   LightSensor_1.begin();
   bme280.begin();
   LightSensor_1.setMode(Continuously_High_Resolution_Mode);
+  pinMode(5, INPUT_PULLDOWN);
+  attachInterrupt(5, waterFlowISR, RISING);
+  pinMode(DoorCheckPort, INPUT_PULLDOWN);
+  pinMode(WindowCheckPort, INPUT_PULLDOWN);
+  attachInterrupt(DoorCheckPort, DoorISR, CHANGE);
+  attachInterrupt(WindowCheckPort, WindowISR, CHANGE);
   Serial.begin(115200);
   WifiConnect();
   xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,NULL,1,NULL);
@@ -122,6 +141,40 @@ void StartAll(){
 
 
 /* Sensors */
+void DoorISR(){
+  
+}
+void WindowISR(){
+  
+}
+void openDoor(){
+  if (!door)
+  {
+    doorServo.write(90);
+  }
+}
+void closeDoor(){
+  if (door)
+  {
+    doorServo.write(-90);
+  }
+  
+}void openWindow(){
+  if (!window)
+  {
+    windowServo.write(90);
+  }
+  
+}
+void closeDoor(){
+  if (window)
+  {
+    windowServo.write(-90);
+  }
+}
+void waterFlowISR(){
+  waterFlow += 1.0 / 5880.0;
+}
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
 }
@@ -194,6 +247,16 @@ float getDistanceLaser(){
 Vector getGyroscope(){
   return mpu.readNormalizeGyro();
 }
+float getToque(){
+  float sensorValue=0;
+  for (int i = 0; i < 50; i++)
+  {
+    sensorValue += analogRead(ToquePort);
+    delay(2);
+  }
+  return (sensorValue/50*3.3/4096-2.5)/ 0.185;
+}
+
 
 /* MQTT */
 void MQTTClientTask(void* pvParameters){

@@ -15,8 +15,13 @@
 #include <PubSubClient.h>
 #include <map>
 #include <string.h>
+#include <ESP32Servo.h>
 #include <VL53L0X.h>
-
+#define ToquePort 26
+#define DoorPort 15
+#define WindowPort 23
+#define DoorCheckPort 18
+#define WindowCheckPort 19
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -44,6 +49,9 @@ const float air_value = 561.0;
 const float water_value = 293.0;
 const float moisture_0 = 0.0;
 const float moisture_100 = 100.0;
+volatile double waterFlow=0; 
+volatile bool door=0;
+volatile bool window=0;
 /*
   I2C порт 0x07 - выводы GP16 (SDA), GP17 (SCL)
   I2C порт 0x06 - выводы GP4 (SDA), GP13 (SCL)
@@ -64,51 +72,57 @@ PubSubClient client(espClient);
 
 /* MQTT */
 //Функция для оформления подписки
-#line 65 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 73 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void subscribe(const char* name, callbackScript script);
-#line 71 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 79 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void MQTTcallback(char* topic, byte* payload, unsigned int length);
-#line 88 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 96 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setupTopics();
-#line 92 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void TopicOut(String s);
-#line 97 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void setup();
 #line 100 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void TopicOut(String s);
+#line 105 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void setup();
+#line 108 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void loop();
-#line 104 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 112 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void StartAll();
-#line 125 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void lcdPrint(String s);
-#line 128 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getTemperature();
-#line 131 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getHumidity();
-#line 134 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getPressure();
-#line 137 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getCO2();
+#line 135 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void openDoor();
 #line 142 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void waterFlowISR();
+#line 145 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void lcdPrint(String s);
+#line 148 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getTemperature();
+#line 151 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getHumidity();
+#line 154 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getPressure();
+#line 157 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getCO2();
+#line 162 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 uint16_t getTVOC();
-#line 147 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 167 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 uint16_t getLux();
-#line 150 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-bool setBusChannel(uint8_t i2c_channel);
-#line 165 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-int getWaterLVL();
 #line 170 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+bool setBusChannel(uint8_t i2c_channel);
+#line 185 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+int getWaterLVL();
+#line 190 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool ColorDistanceSensorBegin();
-#line 181 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 201 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void ColorDistanceGetData();
-#line 191 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 211 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 float getDistanceLaser();
-#line 194 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 214 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 Vector getGyroscope();
-#line 199 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 217 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getToque();
+#line 229 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void MQTTClientTask(void* pvParameters);
-#line 238 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 268 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void WifiConnect();
-#line 65 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 73 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void subscribe(const char* name, callbackScript script){
   topics.insert(std::make_pair(String(name),script));
   client.subscribe(name);
@@ -156,12 +170,14 @@ void StartAll(){
   lox.init();
   lox.setTimeout(500);
   lox.setMeasurementTimingBudget(200000);
+  analogReadResolution(12);
   mcp3021.begin(WaterID);
   CO30.begin();
   CO30.initAirQuality();
   LightSensor_1.begin();
   bme280.begin();
   LightSensor_1.setMode(Continuously_High_Resolution_Mode);
+  attachInterrupt(5, waterFlowISR, RISING);
   Serial.begin(115200);
   WifiConnect();
   xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,NULL,1,NULL);
@@ -169,6 +185,16 @@ void StartAll(){
 
 
 /* Sensors */
+void openDoor(){
+  if (!door)
+  {
+    
+  }
+  
+}
+void waterFlowISR(){
+  waterFlow += 1.0 / 5880.0;
+}
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
 }
@@ -241,6 +267,16 @@ float getDistanceLaser(){
 Vector getGyroscope(){
   return mpu.readNormalizeGyro();
 }
+float getToque(){
+  float sensorValue=0;
+  for (int i = 0; i < 50; i++)
+  {
+    sensorValue += analogRead(ToquePort);
+    delay(2);
+  }
+  return (sensorValue/50*3.3/4096-2.5)/ 0.185;
+}
+
 
 /* MQTT */
 void MQTTClientTask(void* pvParameters){

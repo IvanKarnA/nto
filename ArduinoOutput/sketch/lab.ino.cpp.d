@@ -196,4 +196,9 @@ c:\Users\IVAN\Desktop\nto\ArduinoOutput\sketch\lab.ino.cpp.o: \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\libraries\WiFi\src/WiFiUdp.h \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\cores\esp32/Udp.h \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\cores\esp32/cbuf.h \
- C:\Program\ Files\ (x86)\Arduino\libraries\pubsubclient-master\src/PubSubClient.h
+ C:\Program\ Files\ (x86)\Arduino\libraries\pubsubclient-master\src/PubSubClient.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/ESP32Servo.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/analogWrite.h \
+ C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\cores\esp32/esp32-hal-ledc.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/ESP32PWM.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/ESP32Tone.h
