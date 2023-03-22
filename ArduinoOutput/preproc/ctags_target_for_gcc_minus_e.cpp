@@ -5,7 +5,9 @@
 # 5 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 6 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 7 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
-
+# 8 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 9 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 10 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 #define I2C_HUB_ADDR 0x70
 #define EN_MASK 0x08
 #define DEF_CHANNEL 0x00
@@ -20,6 +22,7 @@ MCP3021 mcp3021;
 SGP30 CO30;
 Adafruit_APDS9960 apds9960;
 BH1750FVI LightSensor_1;
+Adafruit_BME280 bme280;
 #define ColorDistanceSensorAddr 0x07
 #define WaterID 5
 uint16_t ColorDistanceData[4];
@@ -40,31 +43,46 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 37 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 40 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup(){
+  StartAll();
+}
+void loop(){
+  std::cout<< getTemperature()<<"  "<< getHumidity()<<"  "<< getPressure()<<"\n";
+  delay(100);
+}
+void StartAll(){
   Wire.begin();
   mcp3021.begin(5);
  CO30.begin();
 CO30.initAirQuality();
 LightSensor_1.begin();
+bme280.begin();
 LightSensor_1.setMode(0x10);
 }
-void loop(){
-  std::cout<<LightSensor_1.getAmbientLight()<<'\n';
-  delay(100);
-}
 
-uint16_t gerCO2(){
+float getTemperature(){
+  return bme280.readTemperature();
+}
+float getHumidity(){
+  return bme280.readHumidity();
+}
+float getPressure(){
+  return bme280.readPressure();
+}
+uint16_t getCO2(){
   Wire.begin();
   CO30.measureAirQuality();
   return CO30.CO2;
 }
-uint16_t gerTVOC(){
+uint16_t getTVOC(){
   Wire.begin();
   CO30.measureAirQuality();
   return CO30.CO2;
 }
-
+uint16_t getLux(){
+  return LightSensor_1.getAmbientLight();
+}
 bool setBusChannel(uint8_t i2c_channel)
 {
   if (i2c_channel >= 0x08)
@@ -80,7 +98,7 @@ bool setBusChannel(uint8_t i2c_channel)
 
   }
 }
-int GetWaterLVL(){
+int getWaterLVL(){
   int x=map(mcp3021.readADC(), air_value, water_value, moisture_0, moisture_100);
   std::cout<<"Water lvl: "<<x<<"\n";
   return x;

@@ -36,6 +36,21 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "Adafruit_Sensor.h",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\libraries\\Adafruit_Sensor-master"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "Adafruit_BME280.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BME280_Library"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "MPU6050.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Arduino-MPU6050-master"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -66,6 +81,31 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\BH1750FVI\\BH1750FVI.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Program Files (x86)\\Arduino\\libraries\\Adafruit_Sensor-master\\Adafruit_Sensor.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BME280_Library\\Adafruit_BME280.cpp",
+    "Include": "SPI.h",
+    "Includepath": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src"
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BME280_Library\\Adafruit_BME280.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Arduino-MPU6050-master\\MPU6050.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src\\SPI.cpp",
     "Include": "",
     "Includepath": null
   }
