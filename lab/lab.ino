@@ -79,6 +79,10 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
   }
 }
 
+void setupTopics(){
+    // subscribe("esp/test", TopicOut);
+}
+
 void TopicOut(String s){
   Serial.println(s);
 }
@@ -88,7 +92,6 @@ void setup(){
   StartAll();
 }
 void loop(){
-  client.loop();
   std::cout<< getTemperature()<<"  "<< getHumidity()<<"  "<< getPressure()<<"\n";
   delay(100);
 }
@@ -102,10 +105,11 @@ void StartAll(){
   LightSensor_1.setMode(Continuously_High_Resolution_Mode);
   Serial.begin(115200);
   WifiConnect();
-  MQTTSetup();
-  // subscribe("esp/test",TopicOut);
+  xTaskCreate(MQTTClientTask,"MQTTTask",3*1024,NULL,1,NULL);
 }
 
+
+/* Sensors */
 float getTemperature(){
   return bme280.readTemperature();
 }
@@ -171,16 +175,7 @@ void ColorDistanceGetData(){
 }
 
 /* MQTT */
-void WifiConnect(){
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) 
-  {
-    delay(500);
-    Serial.println("Connecting to WiFi..");
-  }
-  Serial.println(WiFi.SSID());
-}
-void MQTTSetup(){
+void MQTTClientTask(void* pvParameters){
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(MQTTcallback);
   while (!client.connected()) 
@@ -194,6 +189,38 @@ void MQTTSetup(){
     {
       Serial.print("failed with state ");
       Serial.println(client.state());
+      vTaskDelay(1000);
     }
   }
+  setupTopics();
+  while (1)
+  {
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        Serial.println("WIFI not connected");
+        vTaskDelay(3000);
+    }
+    else{
+        if (client.connected())
+        {
+            client.loop();
+            vTaskDelay(100);
+        }
+        else{
+            Serial.println("MQTT not connected");
+            vTaskDelay(1000);
+        }
+    } 
+  } 
 }
+
+void WifiConnect(){
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println(WiFi.SSID());
+}
+
