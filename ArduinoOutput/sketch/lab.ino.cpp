@@ -9,6 +9,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <MPU6050.h>
+#include <I2C_graphical_LCD_display.h>
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -18,6 +19,7 @@
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
+I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
 SGP30 CO30;
@@ -39,33 +41,33 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 */
 
-#line 40 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 42 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup();
-#line 43 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 45 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void loop();
-#line 47 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 49 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void StartAll();
-#line 57 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 59 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 float getTemperature();
-#line 60 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 62 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 float getHumidity();
-#line 63 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 65 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 float getPressure();
-#line 66 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 68 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 uint16_t getCO2();
-#line 71 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 73 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 uint16_t getTVOC();
-#line 76 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 78 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 uint16_t getLux();
-#line 79 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 81 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool setBusChannel(uint8_t i2c_channel);
-#line 94 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 96 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 int getWaterLVL();
-#line 99 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 101 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool ColorDistanceSensorBegin();
-#line 110 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 112 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void ColorDistanceGetData();
-#line 40 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 42 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup(){
   StartAll();
 }

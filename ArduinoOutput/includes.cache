@@ -51,6 +51,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "I2C_graphical_LCD_display.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -101,6 +106,11 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Arduino-MPU6050-master\\MPU6050.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified\\I2C_graphical_LCD_display.cpp",
     "Include": "",
     "Includepath": null
   },

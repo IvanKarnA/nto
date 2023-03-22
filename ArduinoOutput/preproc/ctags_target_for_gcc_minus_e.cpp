@@ -8,6 +8,7 @@
 # 8 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 9 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 10 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 11 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 #define I2C_HUB_ADDR 0x70
 #define EN_MASK 0x08
 #define DEF_CHANNEL 0x00
@@ -17,6 +18,7 @@
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
+I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
 SGP30 CO30;
@@ -43,7 +45,7 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 40 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 42 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup(){
   StartAll();
 }
