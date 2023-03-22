@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <iostream>
+#include <I2C_graphical_LCD_display.h>
 #include "Adafruit_APDS9960.h"
 #include "SparkFun_SGP30_Arduino_Library.h"
 #include "mcp3021.h"
@@ -7,12 +8,12 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <MPU6050.h>
+
 #include "WiFi.h"
 #include <PubSubClient.h>
 #include <map>
 #include <string.h>
-typedef void (*callbackScript)(String);
-std::map<String,callbackScript> topics;
+
 
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
@@ -23,6 +24,9 @@ std::map<String,callbackScript> topics;
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
+typedef void (*callbackScript)(String);
+std::map<String,callbackScript> topics;
+I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
 SGP30 CO30;
@@ -92,11 +96,12 @@ void setup(){
   StartAll();
 }
 void loop(){
-  std::cout<< getTemperature()<<"  "<< getHumidity()<<"  "<< getPressure()<<"\n";
+  
   delay(100);
 }
 void StartAll(){
   Wire.begin();
+  lcd.begin();
   mcp3021.begin(WaterID);
   CO30.begin();
   CO30.initAirQuality();
@@ -105,11 +110,14 @@ void StartAll(){
   LightSensor_1.setMode(Continuously_High_Resolution_Mode);
   Serial.begin(115200);
   WifiConnect();
-  xTaskCreate(MQTTClientTask,"MQTTTask",3*1024,NULL,1,NULL);
+  xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,NULL,1,NULL);
 }
 
 
 /* Sensors */
+void lcdPrint(String s){
+  lcd.string( s.c_str(),false);
+}
 float getTemperature(){
   return bme280.readTemperature();
 }
