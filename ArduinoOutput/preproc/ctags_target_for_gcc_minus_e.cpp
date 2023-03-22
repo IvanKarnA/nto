@@ -10,6 +10,12 @@
 # 10 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 11 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 12 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 13 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 14 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 15 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 16 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+
+
 #define I2C_HUB_ADDR 0x70
 #define EN_MASK 0x08
 #define DEF_CHANNEL 0x00
@@ -19,6 +25,8 @@
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
+typedef void (*callbackScript)(String);
+std::map<String,callbackScript> topics;
 VL53L0X lox;
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
@@ -48,7 +56,51 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 45 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 53 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+const char* ssid = "****";
+const char* password = "****";
+const char* mqtt_server = "lapsoft.mooo.com";
+const char* mqtt_login = "esp";
+const char* mqtt_password = "L9{HTRfq7#N!";
+const int mqtt_port = 10101;
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+/* MQTT */
+//Функция для оформления подписки
+void subscribe(const char* name, callbackScript script){
+  topics.insert(std::make_pair(String(name),script));
+  client.subscribe(name);
+}
+
+//Вызывается при получении сообщения с топиков
+void MQTTcallback(char* topic, byte* payload, unsigned int length)
+{
+  String message;
+  for (int i = 0; i < length; i++)
+  {
+    message = message + (char)payload[i];
+  }
+
+  if ((topics.find(String(topic)))==topics.end())
+  {
+    Serial.println("Error");
+  }
+  else{
+    ((*topics.find(String(topic))).second)(message);
+  }
+}
+
+void setupTopics(){
+    // subscribe("esp/test", TopicOut);
+}
+
+void TopicOut(String s){
+  Serial.println(s);
+}
+
+
 void setup(){
   StartAll();
 }
@@ -65,14 +117,26 @@ void StartAll(){
   lox.setTimeout(500);
   lox.setMeasurementTimingBudget(200000);
   mcp3021.begin(5);
- CO30.begin();
-CO30.initAirQuality();
-LightSensor_1.begin();
-bme280.begin();
-LightSensor_1.setMode(0x10);
+  CO30.begin();
+  CO30.initAirQuality();
+  LightSensor_1.begin();
+  bme280.begin();
+  LightSensor_1.setMode(0x10);
+  Serial.begin(115200);
+  WifiConnect();
+  xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,
+# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+                                               __null
+# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+                                                   ,1,
+# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+                                                      __null
+# 120 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+                                                          );
 }
 
 
+/* Sensors */
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
 }
@@ -144,4 +208,54 @@ float getDistanceLaser(){
 }
 Vector getGyroscope(){
   return mpu.readNormalizeGyro();
+}
+
+/* MQTT */
+void MQTTClientTask(void* pvParameters){
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(MQTTcallback);
+  while (!client.connected())
+  {
+    Serial.println("Connecting to MQTT...");
+    if (client.connect("esp", mqtt_login,mqtt_password))
+    {
+      Serial.println("connected");
+    }
+    else
+    {
+      Serial.print("failed with state ");
+      Serial.println(client.state());
+      vTaskDelay(1000);
+    }
+  }
+  setupTopics();
+  while (1)
+  {
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        Serial.println("WIFI not connected");
+        vTaskDelay(3000);
+    }
+    else{
+        if (client.connected())
+        {
+            client.loop();
+            vTaskDelay(100);
+        }
+        else{
+            Serial.println("MQTT not connected");
+            vTaskDelay(1000);
+        }
+    }
+  }
+}
+
+void WifiConnect(){
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println(WiFi.SSID());
 }

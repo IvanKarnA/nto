@@ -11,6 +11,12 @@
 #include <Adafruit_BME280.h>
 #include <MPU6050.h>
 #include <VL53L0X.h>
+#include "WiFi.h"
+#include <PubSubClient.h>
+#include <map>
+#include <string.h>
+#include <VL53L0X.h>
+
 #define I2C_HUB_ADDR        0x70
 #define EN_MASK             0x08
 #define DEF_CHANNEL         0x00
@@ -20,6 +26,8 @@
 #define GP14 0x05
 #define GP5 0x04
 #define GP18 0x03
+typedef void (*callbackScript)(String);
+std::map<String,callbackScript> topics;
 VL53L0X lox;
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
@@ -44,39 +52,95 @@ const float moisture_100 = 100.0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 */
 
-#line 45 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+const char* ssid = "****";
+const char* password =  "****";
+const char* mqtt_server = "lapsoft.mooo.com";
+const char* mqtt_login = "esp";
+const char* mqtt_password = "L9{HTRfq7#N!";
+const int mqtt_port = 10101;
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+/* MQTT */
+//Функция для оформления подписки
+#line 65 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void subscribe(const char* name, callbackScript script);
+#line 71 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void MQTTcallback(char* topic, byte* payload, unsigned int length);
+#line 88 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void setupTopics();
+#line 92 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void TopicOut(String s);
+#line 97 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup();
-#line 48 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 100 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void loop();
-#line 52 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 104 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void StartAll();
-#line 69 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void lcdPrint(String s);
-#line 72 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getTemperature();
-#line 75 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getHumidity();
-#line 78 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getPressure();
-#line 81 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getCO2();
-#line 86 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getTVOC();
-#line 91 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getLux();
-#line 94 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-bool setBusChannel(uint8_t i2c_channel);
-#line 109 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-int getWaterLVL();
-#line 114 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-bool ColorDistanceSensorBegin();
 #line 125 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void lcdPrint(String s);
+#line 128 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getTemperature();
+#line 131 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getHumidity();
+#line 134 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getPressure();
+#line 137 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getCO2();
+#line 142 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getTVOC();
+#line 147 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getLux();
+#line 150 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+bool setBusChannel(uint8_t i2c_channel);
+#line 165 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+int getWaterLVL();
+#line 170 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+bool ColorDistanceSensorBegin();
+#line 181 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void ColorDistanceGetData();
-#line 135 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 191 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 float getDistanceLaser();
-#line 138 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 194 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 Vector getGyroscope();
-#line 45 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 199 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void MQTTClientTask(void* pvParameters);
+#line 238 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void WifiConnect();
+#line 65 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void subscribe(const char* name, callbackScript script){
+  topics.insert(std::make_pair(String(name),script));
+  client.subscribe(name);
+}
+
+//Вызывается при получении сообщения с топиков
+void MQTTcallback(char* topic, byte* payload, unsigned int length) 
+{
+  String message;
+  for (int i = 0; i < length; i++) 
+  {
+    message = message + (char)payload[i];
+  }
+  
+  if ((topics.find(String(topic)))==topics.end())
+  {
+    Serial.println("Error");
+  }
+  else{
+    ((*topics.find(String(topic))).second)(message);
+  }
+}
+
+void setupTopics(){
+    // subscribe("esp/test", TopicOut);
+}
+
+void TopicOut(String s){
+  Serial.println(s);
+}
+
+
 void setup(){
   StartAll();
 }
@@ -93,14 +157,18 @@ void StartAll(){
   lox.setTimeout(500);
   lox.setMeasurementTimingBudget(200000);
   mcp3021.begin(WaterID);
- CO30.begin();
-CO30.initAirQuality();
-LightSensor_1.begin();
-bme280.begin();
-LightSensor_1.setMode(Continuously_High_Resolution_Mode);
+  CO30.begin();
+  CO30.initAirQuality();
+  LightSensor_1.begin();
+  bme280.begin();
+  LightSensor_1.setMode(Continuously_High_Resolution_Mode);
+  Serial.begin(115200);
+  WifiConnect();
+  xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,NULL,1,NULL);
 }
 
 
+/* Sensors */
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
 }
@@ -173,4 +241,55 @@ float getDistanceLaser(){
 Vector getGyroscope(){
   return mpu.readNormalizeGyro();
 }
+
+/* MQTT */
+void MQTTClientTask(void* pvParameters){
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(MQTTcallback);
+  while (!client.connected()) 
+  {
+    Serial.println("Connecting to MQTT...");
+    if (client.connect("esp", mqtt_login,mqtt_password))
+    {
+      Serial.println("connected");
+    }
+    else
+    {
+      Serial.print("failed with state ");
+      Serial.println(client.state());
+      vTaskDelay(1000);
+    }
+  }
+  setupTopics();
+  while (1)
+  {
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        Serial.println("WIFI not connected");
+        vTaskDelay(3000);
+    }
+    else{
+        if (client.connected())
+        {
+            client.loop();
+            vTaskDelay(100);
+        }
+        else{
+            Serial.println("MQTT not connected");
+            vTaskDelay(1000);
+        }
+    } 
+  } 
+}
+
+void WifiConnect(){
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.println("Connecting to WiFi..");
+  }
+  Serial.println(WiFi.SSID());
+}
+
 

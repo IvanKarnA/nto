@@ -61,6 +61,16 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "WiFi.h",
+    "Includepath": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "PubSubClient.h",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\libraries\\pubsubclient-master\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -121,6 +131,61 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\vl53l0x-arduino\\VL53L0X.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\ETH.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFi.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiAP.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiClient.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiGeneric.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiMulti.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiSTA.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiScan.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiServer.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiUdp.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Program Files (x86)\\Arduino\\libraries\\pubsubclient-master\\src\\PubSubClient.cpp",
     "Include": "",
     "Includepath": null
   },
