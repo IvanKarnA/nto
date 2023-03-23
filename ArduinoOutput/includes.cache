@@ -36,8 +36,8 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
-    "Include": "BH1750FVI.h",
-    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\BH1750FVI"
+    "Include": "BH1750.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\BH1750-master\\src"
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
@@ -91,6 +91,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "nto_view.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\NTO_VIEW"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -125,7 +130,7 @@
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\BH1750FVI\\BH1750FVI.cpp",
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\BH1750-master\\src\\BH1750.cpp",
     "Include": "",
     "Includepath": null
   },
