@@ -206,4 +206,6 @@ c:\Users\IVAN\Desktop\nto\ArduinoOutput\sketch\lab.ino.cpp.o: \
  C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/analogWrite.h \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\cores\esp32/esp32-hal-ledc.h \
  C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/ESP32PWM.h \
- C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/ESP32Tone.h
+ C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/ESP32Tone.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\PCA9536_modified/PCA9536.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\PCA9536_modified/utility/PCA9536_PString.h

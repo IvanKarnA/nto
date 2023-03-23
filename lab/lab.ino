@@ -14,6 +14,8 @@
 #include <map>
 #include <string.h>
 #include <ESP32Servo.h>
+#include "PCA9536.h"
+
 #define ToquePort 26
 #define DoorPort 15
 #define WindowPort 23
@@ -32,7 +34,7 @@ typedef void (*callbackScript)(String);
 std::map<String,callbackScript> topics;
 Servo doorServo;
 Servo windowServo;
-
+PCA9536 pca9536;
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
@@ -109,13 +111,18 @@ void setup(){
   doorServo.write(90);
 }
 void loop(){
-  
-  delay(1000);
-  
+  for (int i = 0; i < 1000; i++)
+  {
+    setLightLVL(i);
+    delay(5);
+  }
   
 }
 void StartAll(){
   std::cout<<"1"<<"\n";
+  ledcSetup(0, 90000, 10);
+  ledcAttachPin(4, 0);
+  ledcAttachPin(13, 0);
   doorServo.attach(DoorPort);
   windowServo.attach(WindowPort);
   std::cout<<"2"<<"\n";
@@ -132,6 +139,13 @@ void StartAll(){
   lox.setMeasurementTimingBudget(200000);
   }*/
   std::cout<<"5"<<"\n";
+  Wire.begin();
+  pca9536.reset();
+  pca9536.setMode(IO_OUTPUT);
+  pca9536.setState(IO0, IO_LOW);
+  pca9536.setState(IO1, IO_LOW);
+  pca9536.setState(IO2, IO_LOW);
+  pca9536.setState(IO3, IO_LOW);
   analogReadResolution(12);
   mcp3021.begin(WaterID);
   CO30.begin();
@@ -155,6 +169,21 @@ void StartAll(){
 
 
 /* Sensors */
+void setLightLVL(uint16_t LVL){
+  ledcWrite(0, LVL);
+}
+void pompOn(){
+  pca9536.setState(IO2, IO_HIGH);
+}
+void pompOff(){
+  pca9536.setState(IO2, IO_LOW);
+}
+void coolerOn(){
+  pca9536.setState(IO1, IO_HIGH);
+}
+void coolerOff(){
+  pca9536.setState(IO1, IO_LOW);
+}
 void DoorISR(){
   delay(1);
   if(digitalRead(DoorCheckPort)==HIGH){
@@ -185,7 +214,8 @@ void closeDoor(){
     doorServo.write(0);
   }
   
-}void openWindow(){
+}
+void openWindow(){
   if (!window)
   {
     windowServo.write(90);

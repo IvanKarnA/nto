@@ -86,6 +86,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "PCA9536.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\PCA9536_modified"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -236,6 +241,16 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\ESP32Servo\\src\\analogWrite.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\PCA9536_modified\\PCA9536.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\PCA9536_modified\\utility\\PCA9536_PString.cpp",
     "Include": "",
     "Includepath": null
   }

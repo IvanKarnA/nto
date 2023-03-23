@@ -16,6 +16,8 @@
 #include <map>
 #include <string.h>
 #include <ESP32Servo.h>
+#include "PCA9536.h"
+
 #define ToquePort 26
 #define DoorPort 15
 #define WindowPort 23
@@ -34,7 +36,7 @@ typedef void (*callbackScript)(String);
 std::map<String,callbackScript> topics;
 Servo doorServo;
 Servo windowServo;
-
+PCA9536 pca9536;
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
@@ -74,69 +76,79 @@ PubSubClient client(espClient);
 
 /* MQTT */
 //Функция для оформления подписки
-#line 75 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 77 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void subscribe(const char* name, callbackScript script);
-#line 81 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 83 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void MQTTcallback(char* topic, byte* payload, unsigned int length);
-#line 98 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 100 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setupTopics();
-#line 102 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 104 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void TopicOut(String s);
-#line 107 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 109 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup();
-#line 111 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 113 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void loop();
-#line 117 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 121 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void StartAll();
-#line 158 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 172 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void setLightLVL(uint16_t LVL);
+#line 175 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void pompOn();
+#line 178 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void pompOff();
+#line 181 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void coolerOn();
+#line 184 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void coolerOff();
+#line 187 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void DoorISR();
-#line 167 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 196 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void WindowISR();
-#line 176 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 205 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void openDoor();
-#line 182 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void closeDoor();
-#line 188 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void openWindow();
-#line 195 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void closeWindow();
-#line 201 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void waterFlowISR();
-#line 204 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void lcdPrint(String s);
-#line 208 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void lcdClear();
 #line 211 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getTemperature();
-#line 214 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getHumidity();
-#line 217 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getPressure();
-#line 220 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getCO2();
+void closeDoor();
+#line 218 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void openWindow();
 #line 225 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void closeWindow();
+#line 231 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void waterFlowISR();
+#line 234 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void lcdPrint(String s);
+#line 238 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void lcdClear();
+#line 241 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getTemperature();
+#line 244 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getHumidity();
+#line 247 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getPressure();
+#line 250 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getCO2();
+#line 255 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 uint16_t getTVOC();
-#line 230 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 260 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 uint16_t getLux();
-#line 233 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 263 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool setBusChannel(uint8_t i2c_channel);
-#line 248 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 278 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 int getWaterLVL();
-#line 253 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 283 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool ColorDistanceSensorBegin();
-#line 264 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void ColorDistanceGetData();
-#line 274 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getDistanceLaser();
-#line 277 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-sensors_event_t getGyroscope();
-#line 282 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getToque();
 #line 294 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void ColorDistanceGetData();
+#line 304 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getDistanceLaser();
+#line 307 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+sensors_event_t getGyroscope();
+#line 312 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getToque();
+#line 324 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void MQTTClientTask(void* pvParameters);
-#line 333 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 363 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void WifiConnect();
-#line 75 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 77 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void subscribe(const char* name, callbackScript script){
   topics.insert(std::make_pair(String(name),script));
   client.subscribe(name);
@@ -174,13 +186,18 @@ void setup(){
   doorServo.write(90);
 }
 void loop(){
-  
-  delay(1000);
-  
+  for (int i = 0; i < 1000; i++)
+  {
+    setLightLVL(i);
+    delay(5);
+  }
   
 }
 void StartAll(){
   std::cout<<"1"<<"\n";
+  ledcSetup(0, 90000, 10);
+  ledcAttachPin(4, 0);
+  ledcAttachPin(13, 0);
   doorServo.attach(DoorPort);
   windowServo.attach(WindowPort);
   std::cout<<"2"<<"\n";
@@ -197,6 +214,13 @@ void StartAll(){
   lox.setMeasurementTimingBudget(200000);
   }*/
   std::cout<<"5"<<"\n";
+  Wire.begin();
+  pca9536.reset();
+  pca9536.setMode(IO_OUTPUT);
+  pca9536.setState(IO0, IO_LOW);
+  pca9536.setState(IO1, IO_LOW);
+  pca9536.setState(IO2, IO_LOW);
+  pca9536.setState(IO3, IO_LOW);
   analogReadResolution(12);
   mcp3021.begin(WaterID);
   CO30.begin();
@@ -220,6 +244,21 @@ void StartAll(){
 
 
 /* Sensors */
+void setLightLVL(uint16_t LVL){
+  ledcWrite(0, LVL);
+}
+void pompOn(){
+  pca9536.setState(IO2, IO_HIGH);
+}
+void pompOff(){
+  pca9536.setState(IO2, IO_LOW);
+}
+void coolerOn(){
+  pca9536.setState(IO1, IO_HIGH);
+}
+void coolerOff(){
+  pca9536.setState(IO1, IO_LOW);
+}
 void DoorISR(){
   delay(1);
   if(digitalRead(DoorCheckPort)==HIGH){
@@ -250,7 +289,8 @@ void closeDoor(){
     doorServo.write(0);
   }
   
-}void openWindow(){
+}
+void openWindow(){
   if (!window)
   {
     windowServo.write(90);

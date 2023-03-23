@@ -15,6 +15,8 @@
 # 15 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 16 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 17 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 18 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+
 #define ToquePort 26
 #define DoorPort 15
 #define WindowPort 23
@@ -33,7 +35,7 @@ typedef void (*callbackScript)(String);
 std::map<String,callbackScript> topics;
 Servo doorServo;
 Servo windowServo;
-
+PCA9536 pca9536;
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
@@ -66,7 +68,7 @@ volatile bool window=0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 63 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 65 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 const char* ssid = "****";
 const char* password = "****";
 const char* mqtt_server = "lapsoft.mooo.com";
@@ -116,13 +118,18 @@ void setup(){
   doorServo.write(90);
 }
 void loop(){
-
-  delay(1000);
-
+  for (int i = 0; i < 1000; i++)
+  {
+    setLightLVL(i);
+    delay(5);
+  }
 
 }
 void StartAll(){
   std::cout<<"1"<<"\n";
+  ledcSetup(0, 90000, 10);
+  ledcAttachPin(4, 0);
+  ledcAttachPin(13, 0);
   doorServo.attach(15);
   windowServo.attach(23);
   std::cout<<"2"<<"\n";
@@ -141,8 +148,15 @@ void StartAll(){
   lox.setMeasurementTimingBudget(200000);
 
   }*/
-# 134 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 141 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
   std::cout<<"5"<<"\n";
+  Wire.begin();
+  pca9536.reset();
+  pca9536.setMode(IO_OUTPUT);
+  pca9536.setState(IO0, IO_LOW);
+  pca9536.setState(IO1, IO_LOW);
+  pca9536.setState(IO2, IO_LOW);
+  pca9536.setState(IO3, IO_LOW);
   analogReadResolution(12);
   mcp3021.begin(5);
   CO30.begin();
@@ -162,18 +176,33 @@ void StartAll(){
   Serial.begin(115200);
   //WifiConnect();
   xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,
-# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+# 167 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
                                                __null
-# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 167 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
                                                    ,1,
-# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+# 167 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
                                                       __null
-# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 167 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
                                                           );
 }
 
 
 /* Sensors */
+void setLightLVL(uint16_t LVL){
+  ledcWrite(0, LVL);
+}
+void pompOn(){
+  pca9536.setState(IO2, IO_HIGH);
+}
+void pompOff(){
+  pca9536.setState(IO2, IO_LOW);
+}
+void coolerOn(){
+  pca9536.setState(IO1, IO_HIGH);
+}
+void coolerOff(){
+  pca9536.setState(IO1, IO_LOW);
+}
 void DoorISR(){
   delay(1);
   if(digitalRead(18)==0x1){
@@ -204,7 +233,8 @@ void closeDoor(){
     doorServo.write(0);
   }
 
-}void openWindow(){
+}
+void openWindow(){
   if (!window)
   {
     windowServo.write(90);
