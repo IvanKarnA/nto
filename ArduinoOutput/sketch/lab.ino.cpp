@@ -9,14 +9,13 @@
 #include <BH1750FVI.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
-#include <MPU6050.h>
+#include <Adafruit_MPU6050.h>
 #include <VL53L0X.h>
 #include "WiFi.h"
 #include <PubSubClient.h>
 #include <map>
 #include <string.h>
 #include <ESP32Servo.h>
-#include <VL53L0X.h>
 #define ToquePort 26
 #define DoorPort 15
 #define WindowPort 23
@@ -33,7 +32,9 @@
 #define GP18 0x03
 typedef void (*callbackScript)(String);
 std::map<String,callbackScript> topics;
-VL53L0X lox;
+Servo doorServo;
+Servo windowServo;
+
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
@@ -41,7 +42,8 @@ SGP30 CO30;
 Adafruit_APDS9960 apds9960;
 BH1750FVI LightSensor_1;
 Adafruit_BME280 bme280;
-MPU6050 mpu;
+Adafruit_MPU6050 mpu;
+VL53L0X lox;
 #define ColorDistanceSensorAddr 0x07
 #define WaterID 5
 uint16_t ColorDistanceData[4];
@@ -72,57 +74,69 @@ PubSubClient client(espClient);
 
 /* MQTT */
 //Функция для оформления подписки
-#line 73 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 75 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void subscribe(const char* name, callbackScript script);
-#line 79 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 81 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void MQTTcallback(char* topic, byte* payload, unsigned int length);
-#line 96 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 98 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setupTopics();
-#line 100 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 102 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void TopicOut(String s);
-#line 105 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 107 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup();
-#line 108 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 111 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void loop();
-#line 112 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 117 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void StartAll();
-#line 135 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void openDoor();
-#line 142 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void waterFlowISR();
-#line 145 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void lcdPrint(String s);
-#line 148 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getTemperature();
-#line 151 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getHumidity();
-#line 154 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getPressure();
-#line 157 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getCO2();
-#line 162 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getTVOC();
+#line 158 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void DoorISR();
 #line 167 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-uint16_t getLux();
-#line 170 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-bool setBusChannel(uint8_t i2c_channel);
-#line 185 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-int getWaterLVL();
-#line 190 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-bool ColorDistanceSensorBegin();
+void WindowISR();
+#line 176 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void openDoor();
+#line 182 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void closeDoor();
+#line 188 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void openWindow();
+#line 195 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void closeWindow();
 #line 201 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void ColorDistanceGetData();
+void waterFlowISR();
+#line 204 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void lcdPrint(String s);
+#line 208 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void lcdClear();
 #line 211 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-float getDistanceLaser();
+float getTemperature();
 #line 214 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-Vector getGyroscope();
+float getHumidity();
 #line 217 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getPressure();
+#line 220 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getCO2();
+#line 225 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getTVOC();
+#line 230 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+uint16_t getLux();
+#line 233 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+bool setBusChannel(uint8_t i2c_channel);
+#line 248 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+int getWaterLVL();
+#line 253 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+bool ColorDistanceSensorBegin();
+#line 264 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void ColorDistanceGetData();
+#line 274 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+float getDistanceLaser();
+#line 277 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+sensors_event_t getGyroscope();
+#line 282 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 float getToque();
-#line 229 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 294 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void MQTTClientTask(void* pvParameters);
-#line 268 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 333 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void WifiConnect();
-#line 73 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 75 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void subscribe(const char* name, callbackScript script){
   topics.insert(std::make_pair(String(name),script));
   client.subscribe(name);
@@ -157,46 +171,107 @@ void TopicOut(String s){
 
 void setup(){
   StartAll();
+  doorServo.write(90);
 }
 void loop(){
   
-  delay(100);
+  delay(1000);
+  
+  
 }
 void StartAll(){
+  std::cout<<"1"<<"\n";
+  doorServo.attach(DoorPort);
+  windowServo.attach(WindowPort);
+  std::cout<<"2"<<"\n";
   Wire.begin();
   lcd.begin();
-  mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G);
-  mpu.setThreshold(3);
-  lox.init();
-  lox.setTimeout(500);
+  std::cout<<"3"<<"\n";
+  mpu.begin(0x69);
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+  mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
+  std::cout<<"4"<<"\n";
+  /*if(lox.init()){
+    lox.setTimeout(500);
   lox.setMeasurementTimingBudget(200000);
+  }*/
+  std::cout<<"5"<<"\n";
   analogReadResolution(12);
   mcp3021.begin(WaterID);
   CO30.begin();
   CO30.initAirQuality();
+  std::cout<<"6"<<"\n";
   LightSensor_1.begin();
   bme280.begin();
   LightSensor_1.setMode(Continuously_High_Resolution_Mode);
+  std::cout<<"7"<<"\n";
+  pinMode(5, INPUT_PULLDOWN);
   attachInterrupt(5, waterFlowISR, RISING);
+  pinMode(DoorCheckPort, INPUT_PULLDOWN);
+  pinMode(WindowCheckPort, INPUT_PULLDOWN);
+  attachInterrupt(DoorCheckPort, DoorISR, CHANGE);
+  attachInterrupt(WindowCheckPort, WindowISR, CHANGE);
+  std::cout<<"8"<<"\n";
   Serial.begin(115200);
-  WifiConnect();
+  //WifiConnect();
   xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,NULL,1,NULL);
 }
 
 
 /* Sensors */
+void DoorISR(){
+  delay(1);
+  if(digitalRead(DoorCheckPort)==HIGH){
+    door=true;
+  }
+  else{
+    door=false;
+  }
+}
+void WindowISR(){
+  delay(1);
+  if(digitalRead(WindowCheckPort)==HIGH){
+    window=true;
+  }
+  else{
+    window=false;
+  }
+}
 void openDoor(){
   if (!door)
   {
-    
+    doorServo.write(90);
+  }
+}
+void closeDoor(){
+  if (door)
+  {
+    doorServo.write(0);
   }
   
+}void openWindow(){
+  if (!window)
+  {
+    windowServo.write(90);
+  }
+  
+}
+void closeWindow(){
+  if (window)
+  {
+    windowServo.write(0);
+  }
 }
 void waterFlowISR(){
   waterFlow += 1.0 / 5880.0;
 }
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
+}
+
+void lcdClear(){
+  lcd.clear (0, 0, 128, 64, 0x00);
 }
 float getTemperature(){
   return bme280.readTemperature();
@@ -264,8 +339,10 @@ void ColorDistanceGetData(){
 float getDistanceLaser(){
   return lox.readRangeSingleMillimeters();
 }
-Vector getGyroscope(){
-  return mpu.readNormalizeGyro();
+sensors_event_t getGyroscope(){
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
+  return g;
 }
 float getToque(){
   float sensorValue=0;

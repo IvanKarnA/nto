@@ -51,8 +51,18 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
-    "Include": "MPU6050.h",
-    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Arduino-MPU6050-master"
+    "Include": "Adafruit_MPU6050.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_MPU6050"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "Adafruit_BusIO_Register.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BusIO-master"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "SPI.h",
+    "Includepath": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src"
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
@@ -83,11 +93,6 @@
     "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\Wire\\src\\Wire.cpp",
     "Include": "",
     "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified\\I2C_graphical_LCD_display.cpp",
-    "Include": "SPI.h",
-    "Includepath": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src"
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\I2C_graphical_LCD_modified\\I2C_graphical_LCD_display.cpp",
@@ -130,7 +135,27 @@
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Arduino-MPU6050-master\\MPU6050.cpp",
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_MPU6050\\Adafruit_MPU6050.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BusIO-master\\Adafruit_BusIO_Register.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BusIO-master\\Adafruit_I2CDevice.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\Adafruit_BusIO-master\\Adafruit_SPIDevice.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src\\SPI.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -211,11 +236,6 @@
   },
   {
     "Sourcefile": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\ESP32Servo\\src\\analogWrite.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "C:\\Users\\IVAN\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\SPI\\src\\SPI.cpp",
     "Include": "",
     "Includepath": null
   }

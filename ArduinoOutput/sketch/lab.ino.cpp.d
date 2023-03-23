@@ -142,7 +142,12 @@ c:\Users\IVAN\Desktop\nto\ArduinoOutput\sketch\lab.ino.cpp.o: \
  C:\Program\ Files\ (x86)\Arduino\libraries\Adafruit_Sensor-master/Adafruit_Sensor.h \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\cores\esp32/Print.h \
  C:\Users\IVAN\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
- C:\Users\IVAN\Documents\Arduino\libraries\Arduino-MPU6050-master/MPU6050.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\Adafruit_MPU6050/Adafruit_MPU6050.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\Adafruit_BusIO-master/Adafruit_BusIO_Register.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\Adafruit_BusIO-master/Adafruit_I2CDevice.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\Adafruit_BusIO-master/Adafruit_SPIDevice.h \
+ C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\libraries\SPI\src/SPI.h \
+ C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\cores\esp32/esp32-hal-spi.h \
  C:\Users\IVAN\Documents\Arduino\libraries\vl53l0x-arduino/VL53L0X.h \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\libraries\WiFi\src/WiFi.h \
  C:\Users\IVAN\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.6\cores\esp32/IPv6Address.h \

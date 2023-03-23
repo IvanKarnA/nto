@@ -15,7 +15,6 @@
 # 15 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 16 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 17 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
-
 #define ToquePort 26
 #define DoorPort 15
 #define WindowPort 23
@@ -32,7 +31,9 @@
 #define GP18 0x03
 typedef void (*callbackScript)(String);
 std::map<String,callbackScript> topics;
-VL53L0X lox;
+Servo doorServo;
+Servo windowServo;
+
 I2C_graphical_LCD_display lcd;
 uint16_t clear;
 MCP3021 mcp3021;
@@ -40,7 +41,8 @@ SGP30 CO30;
 Adafruit_APDS9960 apds9960;
 BH1750FVI LightSensor_1;
 Adafruit_BME280 bme280;
-MPU6050 mpu;
+Adafruit_MPU6050 mpu;
+VL53L0X lox;
 #define ColorDistanceSensorAddr 0x07
 #define WaterID 5
 uint16_t ColorDistanceData[4];
@@ -64,7 +66,7 @@ volatile bool window=0;
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 61 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 63 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 const char* ssid = "****";
 const char* password = "****";
 const char* mqtt_server = "lapsoft.mooo.com";
@@ -111,54 +113,119 @@ void TopicOut(String s){
 
 void setup(){
   StartAll();
+  doorServo.write(90);
 }
 void loop(){
 
-  delay(100);
+  delay(1000);
+
+
 }
 void StartAll(){
+  std::cout<<"1"<<"\n";
+  doorServo.attach(15);
+  windowServo.attach(23);
+  std::cout<<"2"<<"\n";
   Wire.begin();
   lcd.begin();
-  mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G);
-  mpu.setThreshold(3);
-  lox.init();
-  lox.setTimeout(500);
+  std::cout<<"3"<<"\n";
+  mpu.begin(0x69);
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+  mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
+  std::cout<<"4"<<"\n";
+  /*if(lox.init()){
+
+    lox.setTimeout(500);
+
   lox.setMeasurementTimingBudget(200000);
+
+  }*/
+# 134 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+  std::cout<<"5"<<"\n";
   analogReadResolution(12);
   mcp3021.begin(5);
   CO30.begin();
   CO30.initAirQuality();
+  std::cout<<"6"<<"\n";
   LightSensor_1.begin();
   bme280.begin();
   LightSensor_1.setMode(0x10);
+  std::cout<<"7"<<"\n";
+  pinMode(5, 0x09);
   attachInterrupt(5, waterFlowISR, 0x01);
+  pinMode(18, 0x09);
+  pinMode(19, 0x09);
+  attachInterrupt(18, DoorISR, 0x03);
+  attachInterrupt(19, WindowISR, 0x03);
+  std::cout<<"8"<<"\n";
   Serial.begin(115200);
-  WifiConnect();
+  //WifiConnect();
   xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,
-# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
                                                __null
-# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
                                                    ,1,
-# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
+# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 3 4
                                                       __null
-# 130 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 153 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
                                                           );
 }
 
 
 /* Sensors */
+void DoorISR(){
+  delay(1);
+  if(digitalRead(18)==0x1){
+    door=true;
+  }
+  else{
+    door=false;
+  }
+}
+void WindowISR(){
+  delay(1);
+  if(digitalRead(19)==0x1){
+    window=true;
+  }
+  else{
+    window=false;
+  }
+}
 void openDoor(){
   if (!door)
   {
-
+    doorServo.write(90);
+  }
+}
+void closeDoor(){
+  if (door)
+  {
+    doorServo.write(0);
   }
 
+}void openWindow(){
+  if (!window)
+  {
+    windowServo.write(90);
+  }
+
+}
+void closeWindow(){
+  if (window)
+  {
+    windowServo.write(0);
+  }
 }
 void waterFlowISR(){
   waterFlow += 1.0 / 5880.0;
 }
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
+}
+
+void lcdClear(){
+  lcd.clear (0, 0, 128, 64, 0x00);
 }
 float getTemperature(){
   return bme280.readTemperature();
@@ -226,8 +293,10 @@ void ColorDistanceGetData(){
 float getDistanceLaser(){
   return lox.readRangeSingleMillimeters();
 }
-Vector getGyroscope(){
-  return mpu.readNormalizeGyro();
+sensors_event_t getGyroscope(){
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
+  return g;
 }
 float getToque(){
   float sensorValue=0;
