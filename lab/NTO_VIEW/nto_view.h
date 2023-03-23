@@ -291,7 +291,38 @@ void MQTTClientTask(void* pvParameters){
     } 
   } 
 }
+int getColor(){ //apds9960 должен быть проинициализированным
 
+  int BLACK[4] = {7, 9, 12, 32};
+  int BLUE[4] = {9, 15, 18, 45};
+  int YELLOW[4] = {32, 35, 31, 104};
+  int GREEN[4] = {8, 14, 12, 37};
+
+  uint16_t red_data   = 0;
+  uint16_t green_data = 0;
+  uint16_t blue_data  = 0;
+  uint16_t clear_data = 0;
+  uint16_t prox_data  = 0;
+
+  // Определение цвета
+  while (!apds9960.colorDataReady()) {
+    delay(5);
+  }
+  apds9960.getColorData(&red_data, &green_data, &blue_data, &clear_data);
+  
+  int blue = abs(red_data - BLUE[0])+abs(green_data - BLUE[1])+abs(blue_data - BLUE[2]);
+  int yellow = abs(red_data - YELLOW[0])+abs(green_data - YELLOW[1])+abs(blue_data - YELLOW[2]);
+  int green = abs(red_data - GREEN[0])+abs(green_data - GREEN[1])+abs(blue_data - GREEN[2]);
+  int black = abs(red_data - BLACK[0])+abs(green_data - BLACK[1])+abs(blue_data - BLACK[2]);
+
+  //std::cout << "colors: " << red_data <<" "<< green_data <<" "<< blue_data <<" "<< clear_data << "\n";
+  
+  if(blue == min(blue,min(yellow,min(green, black)))) return 0;
+  if(yellow == min(blue,min(yellow,min(green, black)))) return 1;
+  if(green == min(blue,min(yellow,min(green, black)))) return 2;
+  if(black == min(blue,min(yellow,min(green, black)))) return 3;
+  return -1;
+}
 void StartAll(){
   std::cout<<"1"<<"\n";
   ledcSetup(0, 200000, 10);
@@ -301,6 +332,7 @@ void StartAll(){
   windowServo.attach(WindowPort);
   std::cout<<"2"<<"\n";
   Wire.begin();
+  ColorDistanceSensorBegin();
   lcd.begin();
   std::cout<<"3"<<"\n";
   mpu.begin(0x69);
@@ -308,10 +340,10 @@ void StartAll(){
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
   std::cout<<"4"<<"\n";
-  /*if(lox.init()){
+  if(lox.init()){
     lox.setTimeout(500);
   lox.setMeasurementTimingBudget(200000);
-  }*/
+  }
   std::cout<<"5"<<"\n";
   Wire.begin();
   lightMeter.begin();
@@ -335,6 +367,7 @@ void StartAll(){
   attachInterrupt(DoorCheckPort, DoorISR, CHANGE);
   attachInterrupt(WindowCheckPort, WindowISR, CHANGE);
   std::cout<<"8"<<"\n";
+  
   Serial.begin(115200);
   //WifiConnect();
   xTaskCreate(MQTTClientTask,"MQTTTask",10*1024,NULL,1,NULL);
