@@ -63,14 +63,16 @@ struct color
   int b;
 };
 /* Sensors */
-
+bool IsRunPomp=0;
 void setLightLVL(uint16_t LVL){
   ledcWrite(0, LVL);
 }
 void pompOn(){
+  IsRunPomp=1;
   pca9536.setState(IO2, IO_HIGH);
 }
 void pompOff(){
+  IsRunPomp=0;
   pca9536.setState(IO2, IO_LOW);
 }
 void coolerOn(){
@@ -124,7 +126,8 @@ void closeWindow(){
   }
 }
 void waterFlowISR(){
-  waterFlow += 1.0 / 5880.0;
+  waterFlow += 1.0 / 5.880;
+  std::cout<<"протекло: "<<waterFlow<<" мл";
 }
 void lcdPrint(String s){
   lcd.string( s.c_str(),false);
@@ -203,6 +206,11 @@ sensors_event_t getGyroscope(){
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
   return g;
+}
+sensors_event_t getAcsel(){
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
+  return a;
 }
 float getToque(){
   float sensorValue=0;
