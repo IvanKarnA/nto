@@ -85,9 +85,11 @@ void DoorISR(){
   delay(1);
   if(digitalRead(DoorCheckPort)==HIGH){
     door=false;
+    
   }
   else{
     door=true;
+    
   }
 }
 void WindowISR(){
@@ -214,15 +216,14 @@ sensors_event_t getAcsel(){
 }
 float getToque(){
   float sensorValue=0;
-  for (int i = 0; i < 250; i++)
+  for (int i = 0; i < 100; i++)
   {
     sensorValue += analogRead(ToquePort);
     delay(2);
   }
- sensorValue = sensorValue / 250; // Делим полученное значение 
+ sensorValue = sensorValue / 100; // Делим полученное значение 
    float voltage = sensorValue * 3.3 / 4096.0;     // Расчет напряжения
   float VRMS = (voltage/2.0) *0.707;   //root 2 is 0.707
-  
   return ((VRMS * 1000)/185)-2.97;
 }
 
@@ -262,7 +263,7 @@ void MQTTcallback(char* topic, byte* payload, unsigned int length)
   }
 }
 void MQTTClientTask(void* pvParameters){
-  client.setServer(mqtt_server, mqtt_port);
+    client.setServer(mqtt_server, mqtt_port);
   client.setCallback(MQTTcallback);
   while (!client.connected()) 
   {
@@ -296,8 +297,12 @@ void MQTTClientTask(void* pvParameters){
             Serial.println("MQTT not connected");
             vTaskDelay(1000);
         }
-    } 
-  } 
+    }
+    
+    
+  }
+  
+    
 }
 int getColor(){ //apds9960 должен быть проинициализированным
 

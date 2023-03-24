@@ -114,13 +114,13 @@ bool AutoLight=false;
 
 
 void setup(){
-  
+  WifiConnect();
   StartAll();
   
   
 }
 void loop(){
-  //Alerts();
+  Alerts();
   delay(100);
   
 }
