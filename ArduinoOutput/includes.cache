@@ -91,6 +91,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
+    "Include": "ArduinoJson.h",
+    "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\ArduinoJson\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\IVAN\\Desktop\\nto\\ArduinoOutput\\sketch\\lab.ino.cpp",
     "Include": "nto_view.h",
     "Includepath": "C:\\Users\\IVAN\\Documents\\Arduino\\libraries\\NTO_VIEW"
   },

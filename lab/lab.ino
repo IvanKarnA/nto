@@ -16,15 +16,16 @@
 #include <ESP32Servo.h>
 #include "PCA9536.h"
 #include <math.h>
-#define Radius 1
-#define NormalWaterL 40
-#define AlertL 170
-#define NoneL 100
-#define SensorL 150
-#define AcselQ 12
-#define GyroQ 12
-const char* ssid = "****";
-const char* password =  "****";
+#include <ArduinoJson.h>
+#define Radius 55
+#define NormalWaterL 62
+#define AlertL 62
+#define NoneL 154
+#define SensorL 66
+#define AcselQ 10
+#define GyroQ 0.07
+const char* ssid = "razdacha tacnev s tesakom";
+const char* password =  "14888282";
 const char* mqtt_server = "lapsoft.mooo.com";
 const char* mqtt_login = "esp";
 const char* mqtt_password = "L9{HTRfq7#N!";
@@ -60,12 +61,14 @@ bool AutoLight=false;
 
 
 void setup(){
+  
   StartAll();
+  
   
 }
 void loop(){
-  Alerts();
-  
+  //Alerts();
+  delay(100);
   
 }
 void AutoLightTopic(String s){
@@ -150,8 +153,9 @@ void checkQuake(){
   sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
   float as=sqrtf(a.acceleration.x*a.acceleration.x+a.acceleration.y*a.acceleration.y+a.acceleration.x*a.acceleration.z),gs=sqrtf(g.gyro.x*g.gyro.x+g.gyro.y*g.gyro.y+g.gyro.z*g.gyro.z);
-  if (as>AcselQ||gs>GyroQ)
+  if (as>=AcselQ||gs>=GyroQ)
   {
+    Serial.println("quake");
     client.publish("/lab/alarm/quake","1");
     client.publish("/lab/alarm/quake","1");
     client.publish("/lab/alarm/quake","1");
@@ -170,7 +174,10 @@ void checkQuake(){
   Serial.print(g.gyro.y);
   Serial.print(", Z: ");
   Serial.print(g.gyro.z);
+  
   Serial.println(" rad/s");
+  Serial.println(as);
+  Serial.println(gs);
 }
 void transfuse150(){
   waterFlow=0;
@@ -224,12 +231,13 @@ void checkWater(){
   }
 }
 float getWaterByWT(){
-  return getWaterLVL()*SensorL/100*0.000001*2*3.14*Radius;
+  return getWaterLVL()*SensorL/100*0.001*2*3.14*Radius;
 }
 void TopicOut(String s){
   Serial.println(s);
 }
 void checkCO2TVOC(){
+  
   Wire.begin();
   CO30.measureAirQuality();
   if (CO30.CO2 > 600) {
@@ -242,4 +250,32 @@ void checkCO2TVOC(){
     client.publish("/lab/alarm/tvoc","1");
     client.publish("/lab/alarm/tvoc","1");
   }
+}
+void send_misc(){  DynamicJsonDocument doc(512);
+  doc["door_magnet_on"] = door;  doc["windows_magnet"] = window;
+  doc["light_lux"] = getLux();  doc["co2_ppm"] = getCO2();
+  doc["tvoc_ppm"] = getTVOC();  doc["pressure"] = getPressure();
+  doc["temperature"] = getTemperature();  doc["humidity"] = getHumidity();
+  doc["amperage"] = getToque();  doc["powerage"] = 12*getToque();
+  String message;
+  serializeJson(doc, message);  client.publish("/lab/misc", message.c_str());
+}
+void send_water_color(){
+  DynamicJsonDocument doc(128);  String message;
+  doc["color"] = getColor();
+  serializeJson(doc, message);  Serial.println(client.publish("/lab/color", message.c_str()));
+}
+void send_water(float colb1_volume, float colb2_volume, float flowed_volume){  DynamicJsonDocument doc(256);
+  doc["colb1_volume"] = colb1_volume;  doc["colb2_volume"] = colb2_volume;
+  doc["flowed_volume"] = flowed_volume;  String message;
+  serializeJson(doc, message);  client.publish("/lab/water", message.c_str());
+  Serial.println(client.publish("/lab/water", message.c_str()));}
+void send_alarm_quake(){
+  client.publish("/lab/alarm/quake", 0);}
+void send_alarm_overflow(){  client.publish("/lab/alarm/overflow", 0);
+}
+void send_alarm_co2(){  client.publish("/lab/alarm/co2", 0);
+}
+void send_alarm_tvoc(){
+  client.publish("/lab/alarm/tvoc", 0);
 }

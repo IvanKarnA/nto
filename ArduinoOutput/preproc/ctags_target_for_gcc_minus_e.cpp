@@ -17,22 +17,23 @@
 # 17 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 # 18 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 
-#define Radius 1
-#define NormalWaterL 40
-#define AlertL 170
-#define NoneL 100
-#define SensorL 150
-#define AcselQ 12
-#define GyroQ 12
-const char* ssid = "****";
-const char* password = "****";
+# 20 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+#define Radius 55
+#define NormalWaterL 62
+#define AlertL 62
+#define NoneL 154
+#define SensorL 66
+#define AcselQ 10
+#define GyroQ 0.07
+const char* ssid = "razdacha tacnev s tesakom";
+const char* password = "14888282";
 const char* mqtt_server = "lapsoft.mooo.com";
 const char* mqtt_login = "esp";
 const char* mqtt_password = "L9{HTRfq7#N!";
 const int mqtt_port = 10101;
 
 void setupTopics();
-# 35 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
+# 36 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino" 2
 void setupTopics(){
     // subscribe("esp/test", TopicOut);
     subscribe("/lab/ctl/pump",PumpTopic);
@@ -55,7 +56,7 @@ void setupTopics(){
   I2C порт 0x03 - выводы GP18 (SDA), GP19 (SCL)
 
 */
-# 51 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+# 52 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 bool AutoLight=false;
 
 
@@ -68,12 +69,14 @@ bool AutoLight=false;
 
 
 void setup(){
+
   StartAll();
+
 
 }
 void loop(){
-
-
+  //Alerts();
+  delay(100);
 
 }
 void AutoLightTopic(String s){
@@ -158,8 +161,11 @@ void checkQuake(){
   sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
   float as=sqrtf(a.acceleration.x*a.acceleration.x+a.acceleration.y*a.acceleration.y+a.acceleration.x*a.acceleration.z),gs=sqrtf(g.gyro.x*g.gyro.x+g.gyro.y*g.gyro.y+g.gyro.z*g.gyro.z);
-  if (as>12||gs>12)
+  if (as>=10||gs>=0.07)
   {
+    Serial.println("quake");
+    client.publish("/lab/alarm/quake","1");
+    client.publish("/lab/alarm/quake","1");
     client.publish("/lab/alarm/quake","1");
   }
     Serial.print("Acceleration X: ");
@@ -176,37 +182,41 @@ void checkQuake(){
   Serial.print(g.gyro.y);
   Serial.print(", Z: ");
   Serial.print(g.gyro.z);
+
   Serial.println(" rad/s");
+  Serial.println(as);
+  Serial.println(gs);
 }
 void transfuse150(){
   waterFlow=0;
   pompOn();
-  while (waterFlow<=150&&getWaterByWT()<170*2*3.14*1)
+  while (waterFlow<=150&&getWaterByWT()<62*2*3.14*55)
   {
     delay(2);
   }
   pompOff();
-  if (getWaterByWT()>170*2*3.14*1)
+  if (getWaterByWT()>62*2*3.14*55)
   {
     client.publish("/lab/alarm/overflow","1");
   }
 }
+
 void transfuse(){
   waterFlow=0;
   pompOn();
-  while (getWaterByWT()<170*2*3.14*1)
+  while (getWaterByWT()<62*2*3.14*55&&IsRunPomp)
   {
-    delay(2);
+    vTaskDelay(30);
   }
   pompOff();
-  if (getWaterByWT()>170*2*3.14*1)
+  if (getWaterByWT()>=62*2*3.14*55)
   {
     client.publish("/lab/alarm/overflow","1");
   }
 }
 void onRobotCome(){
   uint16_t x=0;
-  while (apds9960.readProximity()>100)
+  while (apds9960.readProximity()>154)
   {
     vTaskDelay(100);
 
@@ -214,19 +224,66 @@ void onRobotCome(){
   vTaskDelay(2000);
 
 }
+void Alerts(){
+  checkWater();
+  checkCO2TVOC();
+  checkQuake();
+}
+void checkWater(){
+  if (getWaterByWT()>62*2*3.14*55)
+  {
+    client.publish("/lab/alarm/overflow","1");
+    client.publish("/lab/alarm/overflow","1");
+    client.publish("/lab/alarm/overflow","1");
+    pompOff();
+  }
+}
 float getWaterByWT(){
-  return getWaterLVL()*150/100*0.000001*2*3.14*1;
+  return getWaterLVL()*66/100*0.001*2*3.14*55;
 }
 void TopicOut(String s){
   Serial.println(s);
 }
 void checkCO2TVOC(){
+
   Wire.begin();
   CO30.measureAirQuality();
   if (CO30.CO2 > 600) {
     client.publish("/lab/alarm/co2","1");
+    client.publish("/lab/alarm/co2","1");
+    client.publish("/lab/alarm/co2","1");
   }
   if (CO30.TVOC > 150) {
     client.publish("/lab/alarm/tvoc","1");
+    client.publish("/lab/alarm/tvoc","1");
+    client.publish("/lab/alarm/tvoc","1");
   }
+}
+void send_misc(){ DynamicJsonDocument doc(512);
+  doc["door_magnet_on"] = door; doc["windows_magnet"] = window;
+  doc["light_lux"] = getLux(); doc["co2_ppm"] = getCO2();
+  doc["tvoc_ppm"] = getTVOC(); doc["pressure"] = getPressure();
+  doc["temperature"] = getTemperature(); doc["humidity"] = getHumidity();
+  doc["amperage"] = getToque(); doc["powerage"] = 12*getToque();
+  String message;
+  serializeJson(doc, message); client.publish("/lab/misc", message.c_str());
+}
+void send_water_color(){
+  DynamicJsonDocument doc(128); String message;
+  doc["color"] = getColor();
+  serializeJson(doc, message); Serial.println(client.publish("/lab/color", message.c_str()));
+}
+void send_water(float colb1_volume, float colb2_volume, float flowed_volume){ DynamicJsonDocument doc(256);
+  doc["colb1_volume"] = colb1_volume; doc["colb2_volume"] = colb2_volume;
+  doc["flowed_volume"] = flowed_volume; String message;
+  serializeJson(doc, message); client.publish("/lab/water", message.c_str());
+  Serial.println(client.publish("/lab/water", message.c_str()));}
+void send_alarm_quake(){
+  client.publish("/lab/alarm/quake", 0);}
+void send_alarm_overflow(){ client.publish("/lab/alarm/overflow", 0);
+}
+void send_alarm_co2(){ client.publish("/lab/alarm/co2", 0);
+}
+void send_alarm_tvoc(){
+  client.publish("/lab/alarm/tvoc", 0);
 }

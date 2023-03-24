@@ -209,4 +209,7 @@ c:\Users\IVAN\Desktop\nto\ArduinoOutput\sketch\lab.ino.cpp.o: \
  C:\Users\IVAN\Documents\Arduino\libraries\ESP32Servo\src/ESP32Tone.h \
  C:\Users\IVAN\Documents\Arduino\libraries\PCA9536_modified/PCA9536.h \
  C:\Users\IVAN\Documents\Arduino\libraries\PCA9536_modified/utility/PCA9536_PString.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\ArduinoJson\src/ArduinoJson.h \
+ C:\Users\IVAN\Documents\Arduino\libraries\ArduinoJson\src/ArduinoJson.hpp \
+ C:\Users\IVAN\Documents\Arduino\libraries\ArduinoJson\src/ArduinoJson/Configuration.hpp \
  C:\Users\IVAN\Documents\Arduino\libraries\NTO_VIEW/nto_view.h

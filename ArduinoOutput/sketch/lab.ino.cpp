@@ -18,15 +18,16 @@
 #include <ESP32Servo.h>
 #include "PCA9536.h"
 #include <math.h>
-#define Radius 1
-#define NormalWaterL 40
-#define AlertL 170
-#define NoneL 100
-#define SensorL 150
-#define AcselQ 12
-#define GyroQ 12
-const char* ssid = "****";
-const char* password =  "****";
+#include <ArduinoJson.h>
+#define Radius 55
+#define NormalWaterL 62
+#define AlertL 62
+#define NoneL 154
+#define SensorL 66
+#define AcselQ 10
+#define GyroQ 0.07
+const char* ssid = "razdacha tacnev s tesakom";
+const char* password =  "14888282";
 const char* mqtt_server = "lapsoft.mooo.com";
 const char* mqtt_login = "esp";
 const char* mqtt_password = "L9{HTRfq7#N!";
@@ -34,39 +35,57 @@ const int mqtt_port = 10101;
 
 void setupTopics();
 #include <nto_view.h>
-#line 62 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 63 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setup();
-#line 66 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 69 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void loop();
-#line 71 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 74 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void AutoLightTopic(String s);
-#line 81 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 84 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void LightOnTopic(String s);
-#line 94 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 97 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void FanTopic(String s);
-#line 105 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 108 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void lightCheck();
-#line 119 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 122 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void WindowTopic(String s);
-#line 129 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 132 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void DoorTopic(String s);
-#line 139 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 142 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void PumpTopic(String s);
-#line 149 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 152 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void checkQuake();
-#line 173 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 182 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void transfuse150();
-#line 186 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 196 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void transfuse();
-#line 199 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
-void onRobotCome();
 #line 209 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void onRobotCome();
+#line 219 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void Alerts();
+#line 224 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void checkWater();
+#line 233 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 float getWaterByWT();
-#line 212 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 236 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void TopicOut(String s);
-#line 215 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 239 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void checkCO2TVOC();
-#line 35 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+#line 254 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void send_misc();
+#line 263 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void send_water_color();
+#line 268 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void send_water(float colb1_volume, float colb2_volume, float flowed_volume);
+#line 273 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void send_alarm_quake();
+#line 275 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void send_alarm_overflow();
+#line 277 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void send_alarm_co2();
+#line 279 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
+void send_alarm_tvoc();
+#line 36 "c:\\Users\\IVAN\\Desktop\\nto\\lab\\lab.ino"
 void setupTopics(){
     // subscribe("esp/test", TopicOut);
     subscribe("/lab/ctl/pump",PumpTopic);
@@ -95,12 +114,14 @@ bool AutoLight=false;
 
 
 void setup(){
+  
   StartAll();
+  
   
 }
 void loop(){
-  
-  
+  //Alerts();
+  delay(100);
   
 }
 void AutoLightTopic(String s){
@@ -185,8 +206,11 @@ void checkQuake(){
   sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
   float as=sqrtf(a.acceleration.x*a.acceleration.x+a.acceleration.y*a.acceleration.y+a.acceleration.x*a.acceleration.z),gs=sqrtf(g.gyro.x*g.gyro.x+g.gyro.y*g.gyro.y+g.gyro.z*g.gyro.z);
-  if (as>AcselQ||gs>GyroQ)
+  if (as>=AcselQ||gs>=GyroQ)
   {
+    Serial.println("quake");
+    client.publish("/lab/alarm/quake","1");
+    client.publish("/lab/alarm/quake","1");
     client.publish("/lab/alarm/quake","1");
   }
     Serial.print("Acceleration X: ");
@@ -203,7 +227,10 @@ void checkQuake(){
   Serial.print(g.gyro.y);
   Serial.print(", Z: ");
   Serial.print(g.gyro.z);
+  
   Serial.println(" rad/s");
+  Serial.println(as);
+  Serial.println(gs);
 }
 void transfuse150(){
   waterFlow=0;
@@ -218,15 +245,16 @@ void transfuse150(){
     client.publish("/lab/alarm/overflow","1");
   }
 }
+
 void transfuse(){
   waterFlow=0;
   pompOn();
-  while (getWaterByWT()<AlertL*2*3.14*Radius)
+  while (getWaterByWT()<AlertL*2*3.14*Radius&&IsRunPomp)
   {
-    delay(2);
+    vTaskDelay(30);
   }
   pompOff();
-  if (getWaterByWT()>AlertL*2*3.14*Radius)
+  if (getWaterByWT()>=AlertL*2*3.14*Radius)
   {
     client.publish("/lab/alarm/overflow","1");
   }
@@ -241,19 +269,66 @@ void onRobotCome(){
   vTaskDelay(2000);
   
 }
+void Alerts(){
+  checkWater();
+  checkCO2TVOC();
+  checkQuake();
+}
+void checkWater(){
+  if (getWaterByWT()>AlertL*2*3.14*Radius)
+  {
+    client.publish("/lab/alarm/overflow","1");
+    client.publish("/lab/alarm/overflow","1");
+    client.publish("/lab/alarm/overflow","1");
+    pompOff();
+  }
+}
 float getWaterByWT(){
-  return getWaterLVL()*SensorL/100*0.000001*2*3.14*Radius;
+  return getWaterLVL()*SensorL/100*0.001*2*3.14*Radius;
 }
 void TopicOut(String s){
   Serial.println(s);
 }
 void checkCO2TVOC(){
+  
   Wire.begin();
   CO30.measureAirQuality();
   if (CO30.CO2 > 600) {
     client.publish("/lab/alarm/co2","1");
+    client.publish("/lab/alarm/co2","1");
+    client.publish("/lab/alarm/co2","1");
   }
   if (CO30.TVOC > 150) {
     client.publish("/lab/alarm/tvoc","1");
+    client.publish("/lab/alarm/tvoc","1");
+    client.publish("/lab/alarm/tvoc","1");
   }
+}
+void send_misc(){  DynamicJsonDocument doc(512);
+  doc["door_magnet_on"] = door;  doc["windows_magnet"] = window;
+  doc["light_lux"] = getLux();  doc["co2_ppm"] = getCO2();
+  doc["tvoc_ppm"] = getTVOC();  doc["pressure"] = getPressure();
+  doc["temperature"] = getTemperature();  doc["humidity"] = getHumidity();
+  doc["amperage"] = getToque();  doc["powerage"] = 12*getToque();
+  String message;
+  serializeJson(doc, message);  client.publish("/lab/misc", message.c_str());
+}
+void send_water_color(){
+  DynamicJsonDocument doc(128);  String message;
+  doc["color"] = getColor();
+  serializeJson(doc, message);  Serial.println(client.publish("/lab/color", message.c_str()));
+}
+void send_water(float colb1_volume, float colb2_volume, float flowed_volume){  DynamicJsonDocument doc(256);
+  doc["colb1_volume"] = colb1_volume;  doc["colb2_volume"] = colb2_volume;
+  doc["flowed_volume"] = flowed_volume;  String message;
+  serializeJson(doc, message);  client.publish("/lab/water", message.c_str());
+  Serial.println(client.publish("/lab/water", message.c_str()));}
+void send_alarm_quake(){
+  client.publish("/lab/alarm/quake", 0);}
+void send_alarm_overflow(){  client.publish("/lab/alarm/overflow", 0);
+}
+void send_alarm_co2(){  client.publish("/lab/alarm/co2", 0);
+}
+void send_alarm_tvoc(){
+  client.publish("/lab/alarm/tvoc", 0);
 }
